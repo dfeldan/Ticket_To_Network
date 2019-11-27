@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import csv
 import operator
+import time
 
 G = nx.Graph()
 
@@ -44,21 +45,80 @@ file.close()
 
 #There is a problem where it is not return the correct input. I think it has to do with the fact that the alg 
 #ignores a subgraph if it is the same size as the current max size subgraph. I need to think on how to fix this issue
-def maximum_cities_connected(network, currNode, numTrains, connectedCities):
-    maxNumConnectedCities = connectedCities #Saving so we can return later
-    for adjNode in network[currNode]:   #Traverse over each node that is adjacent to currNode
-        if maxNumConnectedCities.count(adjNode) == 0:   #If we added the adjacent node to the subgraph, ignore it
-            cost = network.get_edge_data(currNode, adjNode)['weight']   #get the cost of traveling to this node
-            if cost < numTrains:    #If we have enough trains to travel to this node...
-                newList = connectedCities 
-                newList.append(adjNode) #add that node the the subgraph
-                reachableCities = maximum_cities_connected(network, adjNode, numTrains - cost, newList) #Then find the maximum number of nodes reachable from it
-                if len(reachableCities) > len(maxNumConnectedCities): #If this new subgraph is bigger than the previous biggest, save it
-                    maxNumConnectedCities = reachableCities
-    return maxNumConnectedCities    #Return the biggest subgraph
+# def maximum_cities_connected(network, currNode, numTrains, connectedCities, currentEdges):
+#     tempConnnectedCities = connectedCities.copy()
+#     tempCurrentEdges = currentEdges.copy()
+#     tempNumTrains = numTrains
+#     maxNumTrains = numTrains
+#     maxNumConnectedCities = connectedCities.copy() #Saving so we can return later
+#     maxCurrentEdges = currentEdges.copy()
+#     for adjNode in network[currNode]:   #Traverse over each node that is adjacent to currNode
+#         if tempConnnectedCities.count(adjNode) == 0:   #If we added the adjacent node to the subgraph, ignore it
+#             cost = network.get_edge_data(currNode, adjNode)['weight']   #get the cost of traveling to this node
+#             if cost <= tempNumTrains:    #If we have enough trains to travel to this node...
+#                 tempConnnectedCities.append(adjNode) #add that node the the subgraph
+#                 tempCurrentEdges.append({currNode,adjNode})
+#                 tempNumTrains = numTrains - cost
+#                 checkNumTrains, checkConnectedCities, checkCurrentEdges = maximum_cities_connected(network, adjNode, tempNumTrains, tempConnnectedCities, tempCurrentEdges) #Then find the maximum number of nodes reachable from it
+#                 if len(checkConnectedCities) >= len(maxNumConnectedCities): #If this new subgraph is bigger than the previous biggest, save it
+#                     maxNumTrains = checkNumTrains
+#                     maxNumConnectedCities = checkConnectedCities
+#                     maxCurrentEdges = checkCurrentEdges
+#     return maxNumTrains, maxNumConnectedCities, maxCurrentEdges    #Return the biggest subgraph
 
-#Print the maximum cities connected to Boston as a test
-print(maximum_cities_connected(network = G, currNode = "Boston", numTrains = 10, connectedCities = ["Boston"]))    
+def maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n):
+    if numTrains == 0 or n == len(edgeQueue):
+        return connectedCities, connectedPath
+    cost = network.get_edge_data(edgeQueue[n][0], edgeQueue[n][1])['weight']
+    
+    if cost > numTrains:
+        return maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1) 
 
+    if connectedCities.count(edgeQueue[n][1]) != 0:
+        return maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1) 
 
+    #print(connectedCities)
+    tempConnnectedCities = connectedCities.copy()
+    tempConnectedPath = connectedPath.copy()
+    tempConnnectedCities.append(edgeQueue[n][1])
+    tempConnectedPath.append(edgeQueue[n])
+
+    tempEdgeQueue = edgeQueue.copy()
+    for edge in network.edges(edgeQueue[n][1]):
+       if edgeQueue.count([edge[0], edge[1]]) == 0 or edgeQueue.count([edge[1], edge[0]]) ==0:
+            if tempConnnectedCities.count(edge[1]) == 0 or tempConnnectedCities.count(edge[0]) == 0:
+                tempEdgeQueue.append(edge)
+    connectedCitiesWith, ConnectedPathWith = maximum_cities_connected(network, numTrains - cost, tempConnnectedCities, tempConnectedPath, tempEdgeQueue, n+1)
+    connectedCitiesWithout, ConnectedPathWithout = maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1)
+
+    if len(connectedCitiesWith) > len(connectedCitiesWithout):
+        return connectedCitiesWith, ConnectedPathWith
+    else:
+        return connectedCitiesWithout, ConnectedPathWithout
+
+currNode = "Boston"
+adjEdges = []
+for edge in G.edges(currNode):
+    adjEdges.append(edge)
+
+numTests = 15
+times = []
+
+for i in range(2,24):
+    start = time.time()
+    for x in range(numTests):
+    #Print the maximum cities connected to Boston as a test
+        maximum_cities_connected(network = G, numTrains = i, edgeQueue = adjEdges.copy(), connectedCities = ["Boston"], connectedPath = [], n = 0)
+    end = time.time()
+    times.append((end-start)/numTests)
+    print((end-start)/numTests)
+
+file = open("timeTest.csv", "w")
+w = csv.writer(file)
+for key in sorted(times):
+    w.writerow([key])
+file.close()
+print(times)
+# for edge in G.edges("Boston"):
+#     print(edge[1])
 
