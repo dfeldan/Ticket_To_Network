@@ -11,6 +11,21 @@ G = nx.Graph()
 file = open("Network.txt", "rb")
 G = nx.read_weighted_edgelist(file)
 file.close()
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+
+#Print Degree to a file
+file = open("degree.csv", "w")
+w = csv.writer(file)
+for city, degree in sorted(G.degree):
+    w.writerow([city, degree])
+file.close()
+
+=======
+>>>>>>> 5103d66dafaa71f489decb9751e431a029bd4c79
+=======
+>>>>>>> 5103d66dafaa71f489decb9751e431a029bd4c79
 #List the nodes
 #print(list(G.nodes))
 
@@ -67,59 +82,60 @@ file.close()
 #                     maxCurrentEdges = checkCurrentEdges
 #     return maxNumTrains, maxNumConnectedCities, maxCurrentEdges    #Return the biggest subgraph
 
-def maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n):
-    if numTrains == 0 or n == len(edgeQueue):
-        return connectedCities, connectedPath
-    cost = network.get_edge_data(edgeQueue[n][0], edgeQueue[n][1])['weight']
+# def maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n):
+#     if numTrains == 0 or n == len(edgeQueue):
+#         return connectedCities, connectedPath
+#     cost = network.get_edge_data(edgeQueue[n][0], edgeQueue[n][1])['weight']
     
-    if cost > numTrains:
-        return maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1) 
+#     if cost > numTrains:
+#         return maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1) 
 
-    if connectedCities.count(edgeQueue[n][1]) != 0:
-        return maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1) 
+#     if connectedCities.count(edgeQueue[n][1]) != 0:
+#         return maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1) 
 
-    #print(connectedCities)
-    tempConnnectedCities = connectedCities.copy()
-    tempConnectedPath = connectedPath.copy()
-    tempConnnectedCities.append(edgeQueue[n][1])
-    tempConnectedPath.append(edgeQueue[n])
+#     #print(connectedCities)
+#     tempConnnectedCities = connectedCities.copy()
+#     tempConnectedPath = connectedPath.copy()
+#     tempConnnectedCities.append(edgeQueue[n][1])
+#     tempConnectedPath.append(edgeQueue[n])
 
-    tempEdgeQueue = edgeQueue.copy()
-    for edge in network.edges(edgeQueue[n][1]):
-       if edgeQueue.count([edge[0], edge[1]]) == 0 or edgeQueue.count([edge[1], edge[0]]) ==0:
-            if tempConnnectedCities.count(edge[1]) == 0 or tempConnnectedCities.count(edge[0]) == 0:
-                tempEdgeQueue.append(edge)
-    connectedCitiesWith, ConnectedPathWith = maximum_cities_connected(network, numTrains - cost, tempConnnectedCities, tempConnectedPath, tempEdgeQueue, n+1)
-    connectedCitiesWithout, ConnectedPathWithout = maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1)
+#     tempEdgeQueue = edgeQueue.copy()
+#     for edge in network.edges(edgeQueue[n][1]):
+#        if edgeQueue.count([edge[0], edge[1]]) == 0 or edgeQueue.count([edge[1], edge[0]]) ==0:
+#             if tempConnnectedCities.count(edge[1]) == 0 or tempConnnectedCities.count(edge[0]) == 0:
+#                 tempEdgeQueue.append(edge)
+#     connectedCitiesWith, ConnectedPathWith = maximum_cities_connected(network, numTrains - cost, tempConnnectedCities, tempConnectedPath, tempEdgeQueue, n+1)
+#     connectedCitiesWithout, ConnectedPathWithout = maximum_cities_connected(network, numTrains, connectedCities, connectedPath, edgeQueue, n+1)
 
-    if len(connectedCitiesWith) > len(connectedCitiesWithout):
-        return connectedCitiesWith, ConnectedPathWith
-    else:
-        return connectedCitiesWithout, ConnectedPathWithout
+#     if len(connectedCitiesWith) > len(connectedCitiesWithout):
+#         return connectedCitiesWith, ConnectedPathWith
+#     else:
+#         return connectedCitiesWithout, ConnectedPathWithout
 
-currNode = "Boston"
-adjEdges = []
-for edge in G.edges(currNode):
-    adjEdges.append(edge)
+# currNode = "Boston"
+# adjEdges = []
+# for edge in G.edges(currNode):
+#     adjEdges.append(edge)
 
-numTests = 15
-times = []
+# numTests = 15
+# times = []
 
-for i in range(2,24):
-    start = time.time()
-    for x in range(numTests):
-    #Print the maximum cities connected to Boston as a test
-        maximum_cities_connected(network = G, numTrains = i, edgeQueue = adjEdges.copy(), connectedCities = ["Boston"], connectedPath = [], n = 0)
-    end = time.time()
-    times.append((end-start)/numTests)
-    print((end-start)/numTests)
+# for i in range(2,24):
+#     start = time.time()
+#     for x in range(numTests):
+#     #Print the maximum cities connected to Boston as a test
+#         maximum_cities_connected(network = G, numTrains = i, edgeQueue = adjEdges.copy(), connectedCities = ["Boston"], connectedPath = [], n = 0)
+#     end = time.time()
+#     times.append((end-start)/numTests)
+#     print((end-start)/numTests)
 
-file = open("timeTest.csv", "w")
-w = csv.writer(file)
-for key in sorted(times):
-    w.writerow([key])
-file.close()
-print(times)
+# file = open("timeTest.csv", "w")
+# w = csv.writer(file)
+# for key in sorted(times):
+#     w.writerow([key])
+# file.close()
+# print(times)
+
 # for edge in G.edges("Boston"):
 #     print(edge[1])
 
